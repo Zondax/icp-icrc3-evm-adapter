@@ -1,0 +1,25 @@
+# Logging configuration
+logging:
+  level: "info"  # Possible values: debug, info, warn, error
+
+# Metrics configuration
+metrics:
+  path: "/metrics"
+  port: "9090"
+  systemMetricsInterval: "10s"
+
+# Router configuration
+routerConfig:
+  # Add any specific router configuration here if needed
+  # For example:
+  # timeout: "30s"
+  # maxConnections: 100
+
+# Server port for the EVM adapter proxy
+serverPort: "3030"
+
+# ICP configuration
+icp:
+  canisterId: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+  nodeUrl: "https://ic0.app"  # Default IC mainnet URL
+

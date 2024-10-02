@@ -1,0 +1,72 @@
+type Value = variant {
+    Blob : blob;
+    Text : text;
+    Nat : nat;
+    Int : int;
+    Array : vec Value;
+    Map : vec record { text; Value };
+};
+
+type Block = record {
+    id : nat;
+    hash : blob;
+    phash : blob;
+    btype : text;
+    ts : nat64;
+    entries : vec Value;
+    finalized : bool;
+};
+
+type LogEntry = record {
+    timestamp : nat64;
+    operation : text;
+    details : Value;
+    caller : text;
+};
+
+type GetArchivesArgs = record {
+    from : opt principal;
+};
+
+type GetArchivesResult = vec record {
+    canister_id : principal;
+    start : nat;
+    end : nat;
+};
+
+type GetBlocksArgs = record {
+    start : nat;
+    length : nat;
+};
+
+type GetBlocksResult = record {
+    log_length : nat;
+    blocks : vec record { id : nat; block: Value };
+    archived_blocks : vec ArchivedBlock;
+};
+
+type ArchivedBlock = record {
+    args : GetBlocksArgs;
+    callback : func (GetBlocksArgs) -> (GetBlocksResult) query;
+};
+
+type DataCertificate = record {
+    certificate : blob;
+    hash_tree : blob;
+};
+
+type BlockTypeInfo = record {
+    block_type : text;
+    url : text;
+};
+
+service : {
+    add_entry : (text, Value, principal) -> ();
+    get_logs : () -> (vec LogEntry) query;
+    chain_id : () -> (text) query;
+    net_version : () -> (text) query;
+    icrc3_get_archives : (GetArchivesArgs) -> (GetArchivesResult) query;
+    icrc3_get_tip_certificate : () -> (opt DataCertificate) query;
+    icrc3_get_blocks : (GetBlocksArgs) -> (GetBlocksResult) query;
+    icrc3_supported_block_types : () -> (vec record { block_type : text; url : text }) query;
+}

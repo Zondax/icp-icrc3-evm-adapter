@@ -1,0 +1,4 @@
+projectName: poc-icp-icrc3-evm-adapter
+templates:
+  - template: templates/golem
+  - template: templates/publish-earthly

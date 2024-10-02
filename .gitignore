@@ -1,0 +1,70 @@
+# Various IDEs and Editors
+**/.vscode/
+**/.idea/
+**/*~
+
+# Mac OSX temporary files
+.DS_Store
+**/.DS_Store
+
+# dfx temporary files
+**/.dfx/
+canisters/**/.dfx/
+canisters/**/.env
+canisters/**/target/
+
+# generated files
+**/declarations/
+
+# rust
+**/target/
+
+# frontend code
+**/node_modules/
+**/dist/
+**/.svelte-kit/
+
+# environment variables
+**/.env
+
+# Build outputs
+**/build/
+
+# IDEs and editors
+**/*.swp
+**/*.swo
+
+# Exclude dfx.json and canister_ids.json from being ignored
+!**/dfx.json
+!**/canister_ids.json
+
+# Cargo.lock in subdirectories
+**/Cargo.lock
+
+# Exclude root Cargo.lock
+!/Cargo.lock
+
+# Rust build artifacts
+**/*.rs.bk
+
+# Ignore all .env files except the example ones
+**/.env*
+!**/.env.example
+
+# Ignore logs
+**/*.log
+
+# Ignore any local configuration files
+**/*.local
+
+# Ignore any files that might contain secrets
+**/*secret*
+**/*key*
+!**/package-lock.json
+
+# Keep the existing rules, but add these exceptions:
+!dfx.json
+!canister_ids.json
+!**/src/**/*.did
+
+evm-adapter-proxy/config.yaml

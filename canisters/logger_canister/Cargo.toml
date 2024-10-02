@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "src/logger_canister_backend"
+]
+resolver = "2"
