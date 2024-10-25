@@ -1,3 +1,20 @@
+type CurrencyPair = record {
+    base_currency: text;
+    quote_currency: text;
+};
+
+type MintOperation = record {
+    currency: text;
+    amount: nat;
+    recipient: principal;
+};
+
+type BurnOperation = record {
+    currency: text;
+    amount: nat;
+    owner: principal;
+};
+
 type Value = variant {
     Blob : blob;
     Text : text;
@@ -36,6 +53,11 @@ type DataCertificate = record {
 service : {
     increment : () -> (nat64);
     get : () -> (nat64);
+    add_currency_pair : (CurrencyPair) -> ();
+    get_currency_pairs : () -> (vec CurrencyPair) query;
+    mint_tokens : (MintOperation) -> (variant { Ok; Err : text });
+    burn_tokens : (BurnOperation) -> (variant { Ok; Err : text });
+    get_token_balance : (principal, text) -> (nat) query;
     icrc3_get_archives : (GetArchivesArgs) -> (GetArchivesResult) query;
     icrc3_get_tip_certificate : () -> (opt DataCertificate) query;
     icrc3_get_blocks : (GetBlocksArgs) -> (GetBlocksResult) query;
