@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"net/url"
 	"sync"
+	"time"
 
-	"github.com/zondax/poc-icp-icrc3-evm-adapter/internal/icp/clients/dex"
-	"github.com/zondax/poc-icp-icrc3-evm-adapter/internal/icp/clients/logger"
+	icpDex "github.com/zondax/poc-icp-icrc3-evm-adapter/internal/icp/clients/dex"
+	icpLogger "github.com/zondax/poc-icp-icrc3-evm-adapter/internal/icp/clients/logger"
 
 	"github.com/aviate-labs/agent-go"
 	"github.com/aviate-labs/agent-go/identity"
@@ -66,10 +67,19 @@ func NewICPClient(cfg *conf.ICPConfig) (*Clients, error) {
 			return
 		}
 
+		timeOut, err := time.ParseDuration(cfg.Timeout)
+		if err != nil {
+			initErr = fmt.Errorf("failed to parse timeout: %w", err)
+			return
+		}
+
 		agentConfig := agent.Config{
-			ClientConfig: &agent.ClientConfig{Host: nodeURL},
+			ClientConfig: &agent.ClientConfig{
+				Host: nodeURL,
+			},
 			FetchRootKey: true,
 			Identity:     id,
+			PollTimeout:  timeOut,
 		}
 
 		loggerAgent, err := icpLogger.NewAgent(loggerCanisterID, agentConfig)

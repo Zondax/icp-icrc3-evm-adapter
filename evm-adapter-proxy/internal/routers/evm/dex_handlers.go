@@ -3,8 +3,8 @@ package evm
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/aviate-labs/agent-go/candid/idl"
-	"github.com/aviate-labs/agent-go/principal"
 	icpDex "github.com/zondax/poc-icp-icrc3-evm-adapter/internal/icp/clients/dex"
 )
 
@@ -41,20 +41,29 @@ func (r *evmRouter) MintTokens(request JSONRPCRequest) (interface{}, error) {
 		return nil, fmt.Errorf("failed to unmarshal mint request: %w", err)
 	}
 
-	principalRecipient, err := principal.Decode(mintReq.Recipient.String())
+	principalRecipient, err := ConvertEthAddressToICPPrincipal(mintReq.Recipient)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode mint request recipient: %w", err)
+		return nil, fmt.Errorf("failed to convert eth address to principal: %w", err)
+	}
+
+	amountInt, err := ConvertHexAmountToBigInt(mintReq.Amount)
+	if err != nil {
+		return nil, err
 	}
 
 	operation := icpDex.MintOperation{
 		Currency:  mintReq.Currency,
-		Amount:    idl.NewNatFromString(mintReq.Amount.String()),
+		Amount:    idl.NewNatFromString(amountInt.String()),
 		Recipient: principalRecipient,
 	}
 
-	_, err = r.icpClients.Dex.MintTokens(operation)
+	result, err := r.icpClients.Dex.MintTokens(operation)
 	if err != nil {
 		return nil, fmt.Errorf("failed to mint tokens: %w", err)
+	}
+
+	if result.Err != nil {
+		return nil, fmt.Errorf("failed to mint tokens: %s", *result.Err)
 	}
 
 	return true, nil
@@ -83,20 +92,29 @@ func (r *evmRouter) BurnTokens(request JSONRPCRequest) (interface{}, error) {
 		return nil, fmt.Errorf("failed to unmarshal burn request: %w", err)
 	}
 
-	principalOwner, err := principal.Decode(burnReq.Owner.String())
+	principalOwner, err := ConvertEthAddressToICPPrincipal(burnReq.Owner)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode burnRequest.Owner: %w", err)
+		return nil, fmt.Errorf("failed to convert eth address to principal: %w", err)
+	}
+
+	amountInt, err := ConvertHexAmountToBigInt(burnReq.Amount)
+	if err != nil {
+		return nil, err
 	}
 
 	operation := icpDex.BurnOperation{
 		Currency: burnReq.Currency,
-		Amount:   idl.NewNatFromString(burnReq.Amount.String()),
+		Amount:   idl.NewNatFromString(amountInt.String()),
 		Owner:    principalOwner,
 	}
 
-	_, err = r.icpClients.Dex.BurnTokens(operation)
+	result, err := r.icpClients.Dex.BurnTokens(operation)
 	if err != nil {
 		return nil, fmt.Errorf("failed to burn tokens: %w", err)
+	}
+
+	if result.Err != nil {
+		return nil, fmt.Errorf("failed to burn tokens: %s", *result.Err)
 	}
 
 	return true, nil

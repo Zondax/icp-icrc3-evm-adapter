@@ -1,10 +1,11 @@
 package evm
 
 import (
+	"fmt"
+	"math/big"
 	"strconv"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
@@ -82,15 +83,15 @@ type FieldValue struct {
 }
 
 type MintRequest struct {
-	Currency  string         `json:"currency"`
-	Amount    *hexutil.Big   `json:"amount"`
-	Recipient common.Address `json:"recipient"`
+	Currency  string      `json:"currency"`
+	Amount    hexutil.Big `json:"amount"`
+	Recipient string      `json:"recipient"`
 }
 
 type BurnRequest struct {
-	Currency string         `json:"currency"`
-	Amount   *hexutil.Big   `json:"amount"`
-	Owner    common.Address `json:"owner"`
+	Currency string      `json:"currency"`
+	Amount   hexutil.Big `json:"amount"`
+	Owner    string      `json:"owner"`
 }
 
 func hexToDecimal(hex string) (string, error) {
@@ -107,4 +108,15 @@ func hexToDecimal(hex string) (string, error) {
 	}
 
 	return strconv.FormatUint(n, 10), nil
+}
+
+// ConvertHexAmountToBigInt converts a hex amount to a big.Int
+// Returns nil if the conversion fails
+func ConvertHexAmountToBigInt(amount hexutil.Big) (*big.Int, error) {
+	amountStr := strings.TrimPrefix(amount.String(), "0x")
+	amountInt, ok := new(big.Int).SetString(amountStr, 16)
+	if !ok {
+		return nil, fmt.Errorf("failed to parse amount: %s", amount.String())
+	}
+	return amountInt, nil
 }

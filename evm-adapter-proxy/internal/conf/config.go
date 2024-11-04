@@ -33,6 +33,7 @@ type ICPConfig struct {
 	LoggerCanisterID string `mapstructure:"loggerCanisterId"`
 	DexCanisterID    string `mapstructure:"dexCanisterId"`
 	NodeURL          string `mapstructure:"nodeUrl"`
+	Timeout          string `mapstructure:"timeout"`
 }
 
 func (c Config) SetDefaults() {
@@ -52,6 +53,10 @@ func (c Config) Validate() error {
 	}
 	if c.ICP.NodeURL == "" {
 		return fmt.Errorf("ICP NodeURL must be provided")
+	}
+
+	if c.ICP.Timeout == "" {
+		return fmt.Errorf("ICP Timeout must be provided")
 	}
 	return nil
 }

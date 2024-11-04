@@ -91,12 +91,30 @@ curl -X POST -H "Content-Type: application/json" \
   "params":[{
     "currency": "ICP",
     "amount": "0x5f5e100",
-    "recipient": "2vxsx-fae"
+    "recipient": "0x2vxsx-fae"
+  }],
+  "id":1
+}' \
+http://localhost:3030/rpc/v1
+
+# Burn Tokens
+curl -X POST -H "Content-Type: application/json" \
+--data '{
+  "jsonrpc":"2.0",
+  "method":"eth_burnTokens",
+  "params":[{
+    "currency": "ICP",
+    "amount": "0x2faf080",
+    "owner": "0x2vxsx-fae"
   }],
   "id":1
 }' \
 http://localhost:3030/rpc/v1
 ```
+
+Note: For this PoC, Ethereum addresses should be formatted as "0x<full_icp_principal>".
+For example, if your ICP principal is "2vxsx-fae", use "0x2vxsx-fae" as the Ethereum address.
+The proxy will simply remove the "0x" prefix to get the ICP principal.
 
 ## Integration with Other Components
 
