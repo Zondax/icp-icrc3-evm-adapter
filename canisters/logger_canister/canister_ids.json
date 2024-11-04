@@ -1,6 +1,5 @@
 {
   "logger_canister_backend": {
-    "ic": "ydpfi-uiaaa-aaaal-qjupa-cai",
-    "local": "r7inp-6aaaa-aaaaa-aaabq-cai"
+    "ic": "ydpfi-uiaaa-aaaal-qjupa-cai"
   }
 }

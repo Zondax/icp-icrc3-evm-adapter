@@ -1,5 +1,5 @@
 use candid::{Principal};
-use crate::icrc3::Value;
+use crate::types::Value;
 
 /// Logs an operation to the logger canister.
 ///

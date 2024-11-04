@@ -1,6 +1,7 @@
 use candid::{CandidType, Deserialize, Principal, Nat};
 use std::cell::RefCell;
 use std::collections::{HashSet, HashMap};
+use crate::types::Block;
 
 #[derive(CandidType, Deserialize, Default)]
 pub struct State {
@@ -15,7 +16,8 @@ pub struct CurrencyPair {
     pub quote_currency: String,
 }
 
-/// Thread-local storage for the canister state
 thread_local! {
+    /// Thread-local storage for the canister state
+    pub static BLOCKS: RefCell<Vec<Block>> = RefCell::new(Vec::new());
     pub static STATE: RefCell<State> = RefCell::default();
 }

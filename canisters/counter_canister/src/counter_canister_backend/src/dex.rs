@@ -55,7 +55,7 @@ pub async fn mint_tokens(operation: MintOperation) -> Result<(), String> {
     STATE.with(|state| {
         let mut state = state.borrow_mut();
         
-        if !state.currency_pairs.iter().any(|pair| pair.base == operation.currency || pair.quote == operation.currency) {
+        if !state.currency_pairs.iter().any(|pair| pair.base_currency == operation.currency || pair.quote_currency == operation.currency) {
             return Err(format!("Currency {} is not listed", operation.currency));
         }
         

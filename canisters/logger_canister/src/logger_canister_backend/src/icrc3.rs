@@ -1,42 +1,19 @@
-use candid::{ Principal, Nat};
-use serde::Serialize;
+use candid::{Principal, Nat};
 use ic_cdk_macros::*;
-use num_traits::cast::ToPrimitive;
+use num_traits::ToPrimitive;
 use sha2::{Sha256, Digest};
-
-use crate::types::{
-    GetArchivesArgs, GetArchivesResult, ArchiveInfo, 
-    DataCertificate, GetBlocksArgs, GetBlocksResult,
-    BlockInfo, ArchivedBlocksRange, Value, BlockTypeInfo
-};
 use crate::state::BLOCKS;
+use crate::types::{
+    GetArchivesArgs, GetArchivesResult, ArchiveInfo,
+    DataCertificate, GetBlocksArgs, GetBlocksResult,
+    BlockInfo, BlockTypeInfo
+};
 
 // Note: These are stub implementations for Proof of Concept (PoC) purposes only.
-
-impl Serialize for ArchivedBlocksRange {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        use serde::ser::SerializeStruct;
-        let mut state = serializer.serialize_struct("ArchivedBlocksRange", 2)?;
-        state.serialize_field("args", &self.args)?;
-        state.serialize_field("callback", &self.callback)?;
-        state.end()
-    }
-}
 
 // ICRC-3 Interface Implementations
 
 /// Retrieves information about archives.
-///
-/// # Arguments
-///
-/// * `args` - A `GetArchivesArgs` struct containing optional starting principal.
-///
-/// # Returns
-///
-/// * `ArchiveInfo` - Information about the archive, including canister ID and block range.
 #[query]
 pub fn icrc3_get_archives(args: GetArchivesArgs) -> GetArchivesResult {
     // Mock implementation
@@ -82,10 +59,9 @@ pub fn icrc3_get_tip_certificate() -> Option<DataCertificate> {
         let mut certificate_data = Vec::new();
         
         let mut leb_encoded = Vec::new();
-        let block_index = last_block_index.0.to_u64().unwrap_or(0);
-        leb128::write::unsigned(&mut leb_encoded, block_index).unwrap();
-        
+        leb128::write::unsigned(&mut leb_encoded, last_block_index.0.to_u64().unwrap_or(0)).unwrap();
         certificate_data.extend_from_slice(&leb_encoded);
+        
         certificate_data.extend_from_slice(&last_block.hash);
         
         hasher.update(&certificate_data);
@@ -121,19 +97,19 @@ pub fn icrc3_get_blocks(args: GetBlocksArgs) -> GetBlocksResult {
             .enumerate()
             .map(|(index, block)| BlockInfo {
                 id: Nat::from(start + index as u64),
-                block: Value::Map(vec![
-                    ("id".to_string(), Value::Nat(block.id.clone())),
-                    ("hash".to_string(), Value::Blob(block.hash.clone())),
-                    ("phash".to_string(), Value::Blob(block.phash.clone())),
-                    ("btype".to_string(), Value::Text(block.btype.clone())),
-                    ("ts".to_string(), Value::Nat(Nat::from(block.ts))),
-                    ("finalized".to_string(), Value::Text(block.finalized.to_string())),
-                    ("entries".to_string(), Value::Array(block.entries.iter().map(|entry| {
-                        Value::Map(vec![
-                            ("timestamp".to_string(), Value::Nat(Nat::from(entry.timestamp))),
-                            ("operation".to_string(), Value::Text(entry.operation.clone())),
+                block: crate::types::Value::Map(vec![
+                    ("id".to_string(), crate::types::Value::Nat(block.id.clone())),
+                    ("hash".to_string(), crate::types::Value::Blob(block.hash.clone())),
+                    ("phash".to_string(), crate::types::Value::Blob(block.phash.clone())),
+                    ("btype".to_string(), crate::types::Value::Text(block.btype.clone())),
+                    ("ts".to_string(), crate::types::Value::Nat(Nat::from(block.ts))),
+                    ("finalized".to_string(), crate::types::Value::Text(block.finalized.to_string())),
+                    ("entries".to_string(), crate::types::Value::Array(block.entries.iter().map(|entry| {
+                        crate::types::Value::Map(vec![
+                            ("timestamp".to_string(), crate::types::Value::Nat(Nat::from(entry.timestamp))),
+                            ("operation".to_string(), crate::types::Value::Text(entry.operation.clone())),
                             ("details".to_string(), entry.details.clone()),
-                            ("caller".to_string(), Value::Text(entry.caller.clone())),
+                            ("caller".to_string(), crate::types::Value::Text(entry.caller.clone())),
                         ])
                     }).collect())),
                 ])
