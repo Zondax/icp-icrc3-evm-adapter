@@ -1,6 +1,8 @@
 package evm
 
 import (
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"strconv"
 	"strings"
 )
@@ -76,6 +78,18 @@ type LogDataField struct {
 type FieldValue struct {
 	Text *string `json:"text,omitempty"`
 	Nat  *string `json:"nat,omitempty"`
+}
+
+type MintRequest struct {
+	Currency  string         `json:"currency"`
+	Amount    *hexutil.Big   `json:"amount"`
+	Recipient common.Address `json:"recipient"`
+}
+
+type BurnRequest struct {
+	Currency string         `json:"currency"`
+	Amount   *hexutil.Big   `json:"amount"`
+	Owner    common.Address `json:"owner"`
 }
 
 func hexToDecimal(hex string) (string, error) {

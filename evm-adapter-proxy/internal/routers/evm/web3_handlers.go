@@ -7,12 +7,25 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-// TODO
+// Web3ClientVersion implements the web3_clientVersion RPC method
+// Returns the current client version
+//
+// Returns:
+//   - string: The client version string
+//   - error: Always returns nil for this implementation
 func (r *evmRouter) Web3ClientVersion(_ JSONRPCRequest) (interface{}, error) {
 	return "EVM-Adapter/v0.1.0", nil
 }
 
-// TODO
+// Web3Sha3 implements the web3_sha3 RPC method
+// Returns Keccak-256 hash of the given data
+//
+// Parameters in request:
+//   - input: The data to hash (hex string)
+//
+// Returns:
+//   - string: The hash in hex format
+//   - error: Any error that occurred during processing
 func (r *evmRouter) Web3Sha3(request JSONRPCRequest) (interface{}, error) {
 	params, ok := request.Params.([]interface{})
 	if !ok || len(params) == 0 {

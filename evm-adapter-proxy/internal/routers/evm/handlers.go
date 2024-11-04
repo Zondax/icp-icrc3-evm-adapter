@@ -23,12 +23,13 @@ type EVMRouter interface {
 
 type evmRouter struct {
 	methodHandlers       map[string]methodHandler
-	icpClient            *icp.Agent
+	icpClients           *icp.Clients
 	arrayResponseMethods map[string]bool
 }
 
 func (r *evmRouter) initMethodHandlers() {
 	r.methodHandlers = map[string]methodHandler{
+		// Standard Ethereum JSON-RPC methods
 		"eth_chainId":          r.EthChainID,
 		"net_version":          r.EthNetVersion,
 		"eth_getBlockByNumber": r.EthGetBlockByNumber,
@@ -40,6 +41,11 @@ func (r *evmRouter) initMethodHandlers() {
 		"web3_sha3":            r.Web3Sha3,
 		"net_listening":        r.NetListening,
 		"net_peerCount":        r.NetPeerCount,
+
+		// Custom DEX methods
+		"eth_getCurrencyPairs": r.GetCurrencyPairs,
+		"eth_mintTokens":       r.MintTokens,
+		"eth_burnTokens":       r.BurnTokens,
 	}
 
 	r.arrayResponseMethods = map[string]bool{
@@ -47,6 +53,17 @@ func (r *evmRouter) initMethodHandlers() {
 	}
 }
 
+// HandleRPCRequest processes incoming JSON-RPC requests and returns appropriate responses
+//
+// The function:
+// 1. Reads and parses the request body
+// 2. Validates the request format
+// 3. Routes to appropriate handler
+// 4. Formats and returns the response
+//
+// Returns:
+//   - domain.ServiceResponse: The formatted response
+//   - error: Any error that occurred during processing
 func (r *evmRouter) HandleRPCRequest(ctx zrouter.Context) (domain.ServiceResponse, error) {
 	body, err := io.ReadAll(ctx.Request().Body)
 	if err != nil {

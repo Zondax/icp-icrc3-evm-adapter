@@ -2,33 +2,37 @@ package conf
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/spf13/viper"
-	"github.com/zondax/golem/pkg/zrouter"
 )
 
 type Config struct {
-	Logging      LoggingConfig  `yaml:"logging"`
-	Metrics      MetricsConfig  `yaml:"metrics"`
-	RouterConfig zrouter.Config `yaml:"routerConfig"`
-	ServerPort   string         `yaml:"serverPort"`
-	ICP          *ICPConfig     `yaml:"icp"`
+	Logging      LoggingConfig `mapstructure:"logging"`
+	Metrics      MetricsConfig `mapstructure:"metrics"`
+	RouterConfig RouterConfig  `mapstructure:"routerConfig"`
+	ServerPort   string        `mapstructure:"serverPort"`
+	ICP          *ICPConfig    `mapstructure:"icp"`
 }
 
 type LoggingConfig struct {
-	Level string `yaml:"level"`
+	Level string `mapstructure:"level"`
 }
 
 type MetricsConfig struct {
-	Path                  string        `yaml:"path"`
-	Port                  string        `yaml:"port"`
-	SystemMetricsInterval time.Duration `yaml:"systemMetricsInterval"`
+	Path                  string `mapstructure:"path"`
+	Port                  string `mapstructure:"port"`
+	SystemMetricsInterval string `mapstructure:"systemMetricsInterval"`
+}
+
+type RouterConfig struct {
+	AppRevision string
+	AppVersion  string
 }
 
 type ICPConfig struct {
-	CanisterID string `yaml:"canisterId"`
-	NodeURL    string `yaml:"nodeUrl"`
+	LoggerCanisterID string `mapstructure:"loggerCanisterId"`
+	DexCanisterID    string `mapstructure:"dexCanisterId"`
+	NodeURL          string `mapstructure:"nodeUrl"`
 }
 
 func (c Config) SetDefaults() {
@@ -40,8 +44,11 @@ func (c Config) SetDefaults() {
 }
 
 func (c Config) Validate() error {
-	if c.ICP.CanisterID == "" {
-		return fmt.Errorf("ICP CanisterID must be provided")
+	if c.ICP.LoggerCanisterID == "" {
+		return fmt.Errorf("ICP LoggerCanisterID must be provided")
+	}
+	if c.ICP.DexCanisterID == "" {
+		return fmt.Errorf("ICP DexCanisterID must be provided")
 	}
 	if c.ICP.NodeURL == "" {
 		return fmt.Errorf("ICP NodeURL must be provided")

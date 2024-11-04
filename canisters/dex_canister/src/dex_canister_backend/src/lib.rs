@@ -1,8 +1,21 @@
-use crate::state::{STATE, CurrencyPair};
-use crate::logging::log_operation;
+mod state;
+mod types;
+mod icrc3;
+mod logging;
+mod constants;
+
 use candid::{CandidType, Deserialize, Principal, Nat};
-use ic_cdk_macros::*;
-use crate::constants::{ADD_CURRENCY_PAIR_OPERATION, MINT_TOKENS_OPERATION, BURN_TOKENS_OPERATION};
+use ic_cdk_macros::{query, update};
+use state::{STATE, CurrencyPair};
+use logging::log_operation;
+use constants::{ADD_CURRENCY_PAIR_OPERATION, MINT_TOKENS_OPERATION, BURN_TOKENS_OPERATION};
+
+pub use types::{
+    LogEntry, Block, Value,
+    GetArchivesArgs, GetArchivesResult, ArchiveInfo,
+    DataCertificate, GetBlocksArgs, GetBlocksResult,
+    BlockInfo, ArchivedBlocksRange, BlockTypeInfo
+};
 
 #[derive(CandidType, Deserialize, Debug)]
 pub struct MintOperation {
@@ -55,7 +68,9 @@ pub async fn mint_tokens(operation: MintOperation) -> Result<(), String> {
     STATE.with(|state| {
         let mut state = state.borrow_mut();
         
-        if !state.currency_pairs.iter().any(|pair| pair.base_currency == operation.currency || pair.quote_currency == operation.currency) {
+        if !state.currency_pairs.iter().any(|pair| 
+            pair.base_currency == operation.currency || 
+            pair.quote_currency == operation.currency) {
             return Err(format!("Currency {} is not listed", operation.currency));
         }
         
@@ -124,3 +139,13 @@ pub fn get_token_balance(user: Principal, currency: String) -> Nat {
             .unwrap_or_else(|| Nat::from(0u64))
     })
 }
+
+pub use icrc3::{
+    icrc3_get_archives, 
+    icrc3_get_tip_certificate, 
+    icrc3_get_blocks, 
+    icrc3_supported_block_types
+};
+
+// Candid export
+ic_cdk::export_candid!();

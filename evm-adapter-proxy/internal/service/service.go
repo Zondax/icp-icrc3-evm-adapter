@@ -20,21 +20,24 @@ func Start(c *conf.Config) {
 	logger.InitLogger(logger.Config{Level: c.Logging.Level})
 	metricServer := gm.NewTaskMetrics(c.Metrics.Path, c.Metrics.Port, appName)
 
-	zrouterConfig := &c.RouterConfig
-	zrouterConfig.AppRevision = version.GitRevision
-	zrouterConfig.AppVersion = version.GitVersion
+	zrouterConfig := zrouter.Config{
+		AppRevision: version.GitRevision,
+		AppVersion:  version.GitVersion,
+	}
 
-	zr := zrouter.New(metricServer, zrouterConfig)
+	zr := zrouter.New(metricServer, &zrouterConfig)
 
 	tr := runner.NewRunner()
 	tr.AddTask(metricServer)
 	tr.Start()
 
-	icpClient, err := icp.NewICPClient(c.ICP)
+	icpClients, err := icp.NewICPClient(c.ICP)
 	if err != nil {
-		zap.S().Fatalf("Error initializing icpClient: %x", err)
+		zap.S().Fatalf("Error initializing ICP clients: %v", err)
 	}
-	evm.NewEVMRouter(zr, icpClient)
+
+	service := evm.NewService(icpClients)
+	evm.NewEVMRouter(zr, service)
 
 	zap.S().Fatal(zr.Run(c.ServerPort))
 }

@@ -8,16 +8,19 @@ import (
 	"strconv"
 	"strings"
 
+	icpLogger "github.com/zondax/poc-icp-icrc3-evm-adapter/internal/icp/clients/logger"
+
 	"github.com/aviate-labs/agent-go/candid/idl"
-	"github.com/zondax/poc-icp-icrc3-evm-adapter/internal/icp"
 )
 
 const (
 	latestParam = "latest"
 )
 
+// EthChainID implements the eth_chainId RPC method
+// Returns the current chain ID in hexadecimal format
 func (r *evmRouter) EthChainID(_ JSONRPCRequest) (interface{}, error) {
-	chainID, err := r.icpClient.ChainId()
+	chainID, err := r.icpClients.Logger.ChainId()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get chain ID: %w", err)
 	}
@@ -34,8 +37,10 @@ func (r *evmRouter) EthChainID(_ JSONRPCRequest) (interface{}, error) {
 	return evmChainID, nil
 }
 
+// EthBlockNumber implements the eth_blockNumber RPC method
+// Returns the latest block number in hexadecimal format
 func (r *evmRouter) EthBlockNumber(_ JSONRPCRequest) (interface{}, error) {
-	tipCert, err := r.icpClient.Icrc3GetTipCertificate()
+	tipCert, err := r.icpClients.Logger.Icrc3GetTipCertificate()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get tip certificate: %w", err)
 	}
@@ -57,15 +62,27 @@ func (r *evmRouter) EthBlockNumber(_ JSONRPCRequest) (interface{}, error) {
 	return ethBlockNumber, nil
 }
 
+// EthAccounts Return an empty array as we don't manage accounts
+func (r *evmRouter) EthAccounts(_ JSONRPCRequest) (interface{}, error) {
+	return []string{}, nil
+}
+
+// EthNetVersion implements the net_version RPC method
+// Returns the current network ID
 func (r *evmRouter) EthNetVersion(_ JSONRPCRequest) (interface{}, error) {
-	netVersion, err := r.icpClient.NetVersion()
+	netVersion, err := r.icpClients.Logger.NetVersion()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get net version: %w", err)
 	}
 	return netVersion, nil
 }
 
-// For POC purposes only. In production, implement proper block retrieval.
+// EthGetBlockByNumber implements the eth_getBlockByNumber RPC method
+// Retrieves a block by its number
+//
+// Parameters:
+// - blockNumberHex: Block number in hex or "latest"
+// Note: This is a PoC implementation and should be enhanced for production use
 func (r *evmRouter) EthGetBlockByNumber(request JSONRPCRequest) (interface{}, error) {
 	params, ok := request.Params.([]interface{})
 	if !ok || len(params) < 1 {
@@ -92,11 +109,11 @@ func (r *evmRouter) EthGetBlockByNumber(request JSONRPCRequest) (interface{}, er
 		return nil, fmt.Errorf("failed to parse block number: %w", err)
 	}
 
-	blocksArgs := icp.GetBlocksArgs{
+	blocksArgs := icpLogger.GetBlocksArgs{
 		Start:  idl.NewNatFromString(blockNumber),
 		Length: idl.NewNatFromString("1"),
 	}
-	result, err := r.icpClient.Icrc3GetBlocks(blocksArgs)
+	result, err := r.icpClients.Logger.Icrc3GetBlocks(blocksArgs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get block by number: %w", err)
 	}
@@ -118,6 +135,11 @@ func (r *evmRouter) EthGetBlockByNumber(request JSONRPCRequest) (interface{}, er
 	return evmBlock, nil
 }
 
+// EthGetBlockByHash implements the eth_getBlockByHash RPC method
+// Retrieves a block by its hash
+//
+// Parameters:
+// - blockHash: The hash of the block to retrieve
 func (r *evmRouter) EthGetBlockByHash(request JSONRPCRequest) (interface{}, error) {
 	params, ok := request.Params.([]interface{})
 	if !ok || len(params) < 1 {
@@ -129,11 +151,11 @@ func (r *evmRouter) EthGetBlockByHash(request JSONRPCRequest) (interface{}, erro
 		return nil, fmt.Errorf("invalid block hash")
 	}
 
-	blocksArgs := icp.GetBlocksArgs{
+	blocksArgs := icpLogger.GetBlocksArgs{
 		Start:  idl.NewNatFromString("0"), // Initialize as needed
 		Length: idl.NewNatFromString("1"),
 	}
-	latestBlockResult, err := r.icpClient.Icrc3GetBlocks(blocksArgs)
+	latestBlockResult, err := r.icpClients.Logger.Icrc3GetBlocks(blocksArgs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get latest block: %w", err)
 	}
@@ -145,11 +167,11 @@ func (r *evmRouter) EthGetBlockByHash(request JSONRPCRequest) (interface{}, erro
 	currentBlockNumber := latestBlockResult.Blocks[0].Id.BigInt().Uint64()
 
 	for {
-		blocksArgs := icp.GetBlocksArgs{
+		blocksArgs := icpLogger.GetBlocksArgs{
 			Start:  idl.NewNatFromString(fmt.Sprintf("%d", currentBlockNumber)),
 			Length: idl.NewNatFromString("1"),
 		}
-		blocksResult, err := r.icpClient.Icrc3GetBlocks(blocksArgs)
+		blocksResult, err := r.icpClients.Logger.Icrc3GetBlocks(blocksArgs)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get block %d: %w", currentBlockNumber, err)
 		}
@@ -179,6 +201,14 @@ func (r *evmRouter) EthGetBlockByHash(request JSONRPCRequest) (interface{}, erro
 	return nil, fmt.Errorf("block with hash %s not found", requestedBlockHash)
 }
 
+// EthGetLogs implements the eth_getLogs RPC method
+// Retrieves logs matching the provided filter criteria
+//
+// The filter can include:
+// - fromBlock: Start block number
+// - toBlock: End block number
+// - address: Contract address to filter
+// - blockHash: Specific block to get logs from
 func (r *evmRouter) EthGetLogs(request JSONRPCRequest) (interface{}, error) {
 	filter, err := extractFilterFromParams(request.Params)
 	if err != nil {
@@ -200,6 +230,9 @@ func (r *evmRouter) EthGetLogs(request JSONRPCRequest) (interface{}, error) {
 	return r.getLogsByFilter(fromBlock, toBlock, address, filterBlockHash)
 }
 
+// Helper functions
+
+// extractFilterFromParams extracts and validates the filter parameters from the RPC request
 func extractFilterFromParams(params interface{}) (map[string]interface{}, error) {
 	paramSlice, ok := params.([]interface{})
 	if !ok || len(paramSlice) < 1 {
@@ -214,6 +247,7 @@ func extractFilterFromParams(params interface{}) (map[string]interface{}, error)
 	return filter, nil
 }
 
+// extractBlockHash extracts the blockHash parameter from the filter
 func extractBlockHash(filter map[string]interface{}) string {
 	if blockHash, ok := filter["blockHash"].(string); ok {
 		return blockHash
@@ -221,6 +255,7 @@ func extractBlockHash(filter map[string]interface{}) string {
 	return ""
 }
 
+// extractBlockRange extracts and validates the block range from the filter
 func extractBlockRange(filter map[string]interface{}) (uint64, uint64, error) {
 	fromBlock, err := parseBlockParam(filter["fromBlock"], 0)
 	if err != nil {
@@ -235,6 +270,7 @@ func extractBlockRange(filter map[string]interface{}) (uint64, uint64, error) {
 	return fromBlock, toBlock, nil
 }
 
+// parseBlockParam parses a block parameter which can be a number or "latest"
 func parseBlockParam(blockParam interface{}, defaultValue uint64) (uint64, error) {
 	if blockParam == nil {
 		return defaultValue, nil
@@ -253,11 +289,13 @@ func parseBlockParam(blockParam interface{}, defaultValue uint64) (uint64, error
 	}
 }
 
-func (r *evmRouter) EthAccounts(_ JSONRPCRequest) (interface{}, error) {
-	// Return an empty array as we don't manage accounts
-	return []string{}, nil
-}
-
+// getLogsByFilter retrieves logs matching the specified filter criteria
+//
+// Parameters:
+// - fromBlock: Start of block range
+// - toBlock: End of block range
+// - address: Optional address to filter logs
+// - filterBlockHash: Optional specific block hash to get logs from
 func (r *evmRouter) getLogsByFilter(fromBlock, toBlock uint64, address, filterBlockhash string) ([]Log, error) {
 	var logs []Log
 	// TODO: Just for PoC
@@ -281,12 +319,12 @@ func (r *evmRouter) getLogsByFilter(fromBlock, toBlock uint64, address, filterBl
 			end = toBlock
 		}
 
-		blocksArgs := icp.GetBlocksArgs{
+		blocksArgs := icpLogger.GetBlocksArgs{
 			Start:  idl.NewNatFromString(fmt.Sprintf("%d", start)),
 			Length: idl.NewNatFromString(fmt.Sprintf("%d", end-start+1)),
 		}
 
-		result, err := r.icpClient.Icrc3GetBlocks(blocksArgs)
+		result, err := r.icpClients.Logger.Icrc3GetBlocks(blocksArgs)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get blocks: %w", err)
 		}
@@ -307,7 +345,6 @@ func (r *evmRouter) getLogsByFilter(fromBlock, toBlock uint64, address, filterBl
 
 	return logs, nil
 }
-
 func (r *evmRouter) getLatestBlockNumber() (uint64, error) {
 	latestBlockHex, err := r.EthBlockNumber(JSONRPCRequest{})
 	if err != nil {
@@ -327,7 +364,13 @@ func (r *evmRouter) getLatestBlockNumber() (uint64, error) {
 	return latestBlock, nil
 }
 
-func extractLogsFromBlock(block icp.Value, address, filterBlockHash string) ([]Log, error) {
+// extractLogsFromBlock extracts EVM-compatible logs from an ICRC-3 block
+//
+// Parameters:
+// - block: The ICRC-3 block to extract logs from
+// - address: Optional address filter
+// - filterBlockHash: Optional block hash filter
+func extractLogsFromBlock(block icpLogger.Value, address, filterBlockHash string) ([]Log, error) {
 	var logs []Log
 
 	blockMap := block.Map
@@ -336,7 +379,7 @@ func extractLogsFromBlock(block icp.Value, address, filterBlockHash string) ([]L
 	}
 
 	var id *idl.Nat
-	var entries []icp.Value
+	var entries []icpLogger.Value
 	for _, entry := range *blockMap {
 		switch entry.Field0 {
 		case "id":
@@ -359,7 +402,7 @@ func extractLogsFromBlock(block icp.Value, address, filterBlockHash string) ([]L
 		var logEntry struct {
 			Timestamp uint64
 			Operation string
-			Details   icp.Value
+			Details   icpLogger.Value
 			Caller    string
 		}
 
@@ -437,7 +480,8 @@ func extractLogsFromBlock(block icp.Value, address, filterBlockHash string) ([]L
 	return logs, nil
 }
 
-func extractDetailMap(details icp.Value) []LogDataField {
+// extractDetailMap converts ICRC-3 log details to EVM log format
+func extractDetailMap(details icpLogger.Value) []LogDataField {
 	var fields []LogDataField
 	if details.Map == nil {
 		return fields
@@ -463,6 +507,7 @@ func extractDetailMap(details icp.Value) []LogDataField {
 	return fields
 }
 
+// extractAddress extracts the address filter from the filter parameters
 func extractAddress(filter map[string]interface{}) (string, error) {
 	if addr, ok := filter["address"]; ok {
 		if addrStr, ok := addr.(string); ok {
