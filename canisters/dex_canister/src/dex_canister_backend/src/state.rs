@@ -13,6 +13,7 @@ pub struct State {
 pub struct CurrencyPair {
     pub base_currency: String,
     pub quote_currency: String,
+    pub rate: Nat,
 }
 
 thread_local! {

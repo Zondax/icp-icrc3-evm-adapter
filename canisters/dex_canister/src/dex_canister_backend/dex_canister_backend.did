@@ -1,6 +1,7 @@
 type CurrencyPair = record {
     base_currency: text;
     quote_currency: text;
+    rate: nat;
 };
 
 type MintOperation = record {

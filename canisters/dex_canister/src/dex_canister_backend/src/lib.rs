@@ -38,6 +38,10 @@ pub struct BurnOperation {
 /// * `pair` - A `CurrencyPair` struct representing the currency pair to be added.
 #[update]
 pub async fn add_currency_pair(pair: CurrencyPair) {
+    if pair.rate == Nat::from(0u64) {
+        ic_cdk::trap("Rate cannot be zero");
+    }
+
     STATE.with(|state| {
         state.borrow_mut().currency_pairs.insert(pair.clone());
     });
