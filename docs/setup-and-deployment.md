@@ -39,19 +39,28 @@ This guide provides instructions for setting up and deploying the ICP-EVM Proxy 
    dfx deploy --network=<chosen_icp_network>
    ```
 
-5. **Configure and Deploy EVM Adapter Proxy**
+5. **Configure and Deploy DEX Canister**
+
+   Edit `canisters/dex_canister/src/lib.rs` and update the `LOGGER_CANISTER_ID` constant with the Logger Canister ID.
+
+   ```shell
+   cd ../dex_canister
+   dfx deploy --network=<chosen_icp_network>
+   ```
+
+6. **Configure and Deploy EVM Adapter Proxy**
 
    ```shell
    cd ../../evm-adapter-proxy
    ```
 
-   Edit `config.yaml` and update the ICP configuration with the deployed canister IDs.
+   Edit `config.yaml` and update the ICP configuration with all deployed canister IDs (Logger, Counter, and DEX).
 
    ```shell
    make run
    ```
 
-6. **Configure and Run SubQuery Indexer**
+7. **Configure and Run SubQuery Indexer**
 
    ```shell
    cd ../subq-indexer
@@ -70,8 +79,23 @@ This guide provides instructions for setting up and deploying the ICP-EVM Proxy 
 
 To verify the deployment:
 
-1. Interact with the Counter Canister to generate log entries.
-2. Check the EVM Adapter Proxy's functionality:
+1. Test the Counter Canister:
+
+   ```shell
+   dfx canister call counter_canister increment
+   ```
+
+2. Test the DEX Canister:
+
+   ```shell
+   dfx canister call dex_canister add_currency_pair '(record {
+       base_currency = "ICP";
+       quote_currency = "BTC";
+       rate = 31337;
+   })'
+   ```
+
+3. Check the EVM Adapter Proxy's functionality:
 
    ```shell
    curl -X POST -H "Content-Type: application/json" \
@@ -79,15 +103,16 @@ To verify the deployment:
    http://localhost:3030/rpc/v1
    ```
 
-3. Query the translated data using one of the following methods:
-   a. Use the SubQuery Indexer's GraphQL endpoint (typically at `http://localhost:3000`) to execute GraphQL queries.
-   b. Directly query the PostgreSQL database.
+4. Query the translated data using one of the following methods:
+   - Use the SubQuery Indexer's GraphQL endpoint (typically at `http://localhost:3000`)
+   - Directly query the PostgreSQL database
 
 ## Deployed Canister URLs
 
 You can interact with the deployed canisters using the following URLs:
 
 - Counter Canister: <https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=5kyqu-qyaaa-aaaak-qitna-cai>
+- DEX Canister: <https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=7eo5f-eqaaa-aaaam-adqoq-cai>
 - Logger Canister: <https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=ydpfi-uiaaa-aaaal-qjupa-cai>
 
 These URLs provide access to the canister interfaces, allowing you to interact with them directly through the Internet Computer's web interface.

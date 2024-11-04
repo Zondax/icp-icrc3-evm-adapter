@@ -8,19 +8,71 @@ This guide provides instructions on how to interact with the ICP-EVM Proxy syste
 
    Use the following command to increment the counter:
 
-   yyyshell
+   ```shell
    dfx canister call counter_canister increment
-   yyy
+   ```
 
 2. **Get the Current Counter Value**
 
    To retrieve the current value of the counter:
 
-   yyyshell
+   ```shell
    dfx canister call counter_canister get
-   yyy
+   ```
 
-   Both of these operations will generate events that are logged by the Logger Canister.
+## Interacting with the DEX Canister
+
+1. **Add a Currency Pair**
+
+   To add a new trading pair with its exchange rate:
+
+   ```shell
+   dfx canister call dex_canister add_currency_pair '(record { 
+       base_currency = "ICP"; 
+       quote_currency = "BTC";
+       rate = 31337;
+   })'
+   ```
+
+2. **Get Currency Pairs**
+
+   To list all available currency pairs:
+
+   ```shell
+   dfx canister call dex_canister get_currency_pairs
+   ```
+
+3. **Mint Tokens**
+
+   To create new tokens for a recipient:
+
+   ```shell
+   dfx canister call dex_canister mint_tokens '(record { 
+       currency = "ICP"; 
+       amount = 100000000; 
+       recipient = principal "2vxsx-fae" 
+   })'
+   ```
+
+4. **Burn Tokens**
+
+   To destroy tokens from an owner's balance:
+
+   ```shell
+   dfx canister call dex_canister burn_tokens '(record { 
+       currency = "ICP"; 
+       amount = 50000000; 
+       owner = principal "2vxsx-fae" 
+   })'
+   ```
+
+5. **Check Token Balance**
+
+   To query a user's token balance:
+
+   ```shell
+   dfx canister call dex_canister get_token_balance '(principal "2vxsx-fae", "ICP")'
+   ```
 
 ## Querying Logs via EVM Adapter Proxy
 
@@ -28,17 +80,17 @@ You can interact with the EVM Adapter Proxy using standard Ethereum JSON-RPC cal
 
 1. **Get the Latest Block Number**
 
-   yyyshell
+   ```shell
    curl -X POST -H "Content-Type: application/json" \
    --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \
-   <http://localhost:3030/rpc/v1>
-   yyy
+   http://localhost:3030/rpc/v1
+   ```
 
 2. **Get Logs**
 
    To retrieve logs for a specific block range:
 
-   yyyshell
+   ```shell
    curl -X POST -H "Content-Type: application/json" \
    --data '{
      "jsonrpc":"2.0",
@@ -46,8 +98,8 @@ You can interact with the EVM Adapter Proxy using standard Ethereum JSON-RPC cal
      "params":[{"fromBlock":"0x0","toBlock":"latest"}],
      "id":1
    }' \
-   <http://localhost:3030/rpc/v1>
-   yyy
+   http://localhost:3030/rpc/v1
+   ```
 
 ## Querying Data via SubQuery Indexer
 
@@ -98,7 +150,7 @@ You also have the option to query the database directly. The SubQuery Indexer ty
    - User: postgres
    - Password: postgres (unless changed during setup)
 
-3. Once connected, you can query the `logs` table directly. For example:
+3. Once connected, you can query the `logs` table directly:
 
 ```sql
 SELECT * FROM <schema_name>.logs;

@@ -36,8 +36,7 @@ func Start(c *conf.Config) {
 		zap.S().Fatalf("Error initializing ICP clients: %v", err)
 	}
 
-	service := evm.NewService(icpClients)
-	evm.NewEVMRouter(zr, service)
+	evm.NewEVMRouter(zr, icpClients)
 
 	zap.S().Fatal(zr.Run(c.ServerPort))
 }
