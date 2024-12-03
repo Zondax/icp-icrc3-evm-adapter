@@ -98,7 +98,7 @@ func hexToDecimal(hex string) (string, error) {
 	hex = strings.TrimPrefix(hex, "0x")
 
 	switch hex {
-	case "latest", "pending", "earliest":
+	case "latest", "pending", "earliest", "finalized", "safe":
 		return hex, nil
 	}
 

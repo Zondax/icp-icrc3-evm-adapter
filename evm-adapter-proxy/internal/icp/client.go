@@ -77,9 +77,10 @@ func NewICPClient(cfg *conf.ICPConfig) (*Clients, error) {
 			ClientConfig: &agent.ClientConfig{
 				Host: nodeURL,
 			},
-			FetchRootKey: true,
-			Identity:     id,
-			PollTimeout:  timeOut,
+			FetchRootKey:                   cfg.FetchRootKey,
+			Identity:                       id,
+			PollTimeout:                    timeOut,
+			DisableSignedQueryVerification: cfg.DisableSignedQueryVerification,
 		}
 
 		loggerAgent, err := icpLogger.NewAgent(loggerCanisterID, agentConfig)

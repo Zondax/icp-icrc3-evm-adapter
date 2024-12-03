@@ -30,10 +30,12 @@ type RouterConfig struct {
 }
 
 type ICPConfig struct {
-	LoggerCanisterID string `mapstructure:"loggerCanisterId"`
-	DexCanisterID    string `mapstructure:"dexCanisterId"`
-	NodeURL          string `mapstructure:"nodeUrl"`
-	Timeout          string `mapstructure:"timeout"`
+	LoggerCanisterID               string `mapstructure:"loggerCanisterId"`
+	DexCanisterID                  string `mapstructure:"dexCanisterId"`
+	NodeURL                        string `mapstructure:"nodeUrl"`
+	Timeout                        string `mapstructure:"timeout"`
+	DisableSignedQueryVerification bool   `mapstructure:"disableSignedQueryVerification"`
+	FetchRootKey                   bool   `mapstructure:"fetchRootKey"`
 }
 
 func (c Config) SetDefaults() {
@@ -42,6 +44,8 @@ func (c Config) SetDefaults() {
 	viper.SetDefault("logging.level", "info")
 	viper.SetDefault("metrics.path", "/metrics")
 	viper.SetDefault("metrics.port", "9090")
+	viper.SetDefault("icp.disableSignedQueryVerification", false)
+	viper.SetDefault("icp.fetchRootKey", false)
 }
 
 func (c Config) Validate() error {
