@@ -1,0 +1,64 @@
+type CurrencyPair = record {
+    base_currency: text;
+    quote_currency: text;
+    rate: nat;
+};
+
+type MintOperation = record {
+    currency: text;
+    amount: nat;
+    recipient: principal;
+};
+
+type BurnOperation = record {
+    currency: text;
+    amount: nat;
+    owner: principal;
+};
+
+type Value = variant {
+    Blob : blob;
+    Text : text;
+    Nat : nat;
+    Int : int;
+    Array : vec Value;
+    Map : vec record { text; Value };
+};
+
+type GetArchivesArgs = record {
+    from : opt principal;
+};
+
+type GetArchivesResult = record {
+    canister_id : principal;
+    start : nat;
+    end : nat;
+};
+
+type GetBlocksArgs = record { start : nat; length : nat };
+
+type GetBlocksResult = record {
+    log_length : nat;
+    blocks : vec record { id : nat; block: Value };
+    archived_blocks : vec record {
+        args : GetBlocksArgs;
+        callback : func (GetBlocksArgs) -> (GetBlocksResult) query;
+    };
+};
+
+type DataCertificate = record {
+    certificate : blob;
+    hash_tree : blob;
+};
+
+service : {
+    add_currency_pair : (CurrencyPair) -> ();
+    get_currency_pairs : () -> (vec CurrencyPair) query;
+    mint_tokens : (MintOperation) -> (variant { Ok; Err : text });
+    burn_tokens : (BurnOperation) -> (variant { Ok; Err : text });
+    get_token_balance : (principal, text) -> (nat) query;
+    icrc3_get_archives : (GetArchivesArgs) -> (GetArchivesResult) query;
+    icrc3_get_tip_certificate : () -> (opt DataCertificate) query;
+    icrc3_get_blocks : (GetBlocksArgs) -> (GetBlocksResult) query;
+    icrc3_supported_block_types : () -> (vec record { block_type : text; url : text }) query;
+}

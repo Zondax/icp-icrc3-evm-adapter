@@ -2,6 +2,7 @@
 graph TD
     User((User))
     CC[Counter Canister<br>Rust]
+    DC[DEX Canister<br>Rust]
     LC[Logger Canister<br>Rust]
     EAP[EVM Adapter Proxy<br>Go]
     SQI[SubQuery Indexer<br>Node.js]
@@ -9,7 +10,9 @@ graph TD
     GQL[GraphQL API]
 
     User --> |Interacts| CC
+    User --> |Trading Operations| DC
     CC --> |Generates events| LC
+    DC --> |Generates events| LC
     LC --> |Stores ICRC-3 logs| LC
     EAP --> |Retrieves logs| LC
     EAP --> |Translates logs| EAP
@@ -20,6 +23,7 @@ graph TD
 
     subgraph Internet Computer Protocol
         CC
+        DC
         LC
     end
 

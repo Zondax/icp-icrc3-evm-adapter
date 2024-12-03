@@ -1,3 +1,20 @@
+type CurrencyPair = record {
+    base_currency: text;
+    quote_currency: text;
+};
+
+type MintOperation = record {
+    currency: text;
+    amount: nat;
+    recipient: principal;
+};
+
+type BurnOperation = record {
+    currency: text;
+    amount: nat;
+    owner: principal;
+};
+
 type Value = variant {
     Blob : blob;
     Text : text;

@@ -20,6 +20,8 @@ serverPort: "3030"
 
 # ICP configuration
 icp:
-  canisterId: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+  loggerCanisterId: "ydpfi-uiaaa-aaaal-qjupa-cai"
+  dexCanisterId: "7eo5f-eqaaa-aaaam-adqoq-cai"
   nodeUrl: "https://ic0.app"  # Default IC mainnet URL
+  timeout: "120s"  # Timeout for ICP operations
 

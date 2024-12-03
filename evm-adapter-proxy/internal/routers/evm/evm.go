@@ -5,9 +5,19 @@ import (
 	"github.com/zondax/poc-icp-icrc3-evm-adapter/internal/icp"
 )
 
-func NewEVMRouter(zr zrouter.ZRouter, icpClient *icp.Agent) {
+// NewEVMRouter creates and initializes a new EVM-compatible router
+//
+// Parameters:
+//   - zr: The base router to add EVM routes to
+//   - icpClients: The ICP clients (Logger and DEX) to use for operations
+//
+// The router will:
+//  1. Initialize an evmRouter instance with the provided clients
+//  2. Set up all supported RPC method handlers
+//  3. Add the main RPC endpoint (/rpc/v1)
+func NewEVMRouter(zr zrouter.ZRouter, icpClients *icp.Clients) {
 	r := &evmRouter{
-		icpClient: icpClient,
+		icpClients: icpClients,
 	}
 	r.initMethodHandlers()
 

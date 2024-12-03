@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"net/url"
 	"sync"
+	"time"
+
+	icpDex "github.com/zondax/poc-icp-icrc3-evm-adapter/internal/icp/clients/dex"
+	icpLogger "github.com/zondax/poc-icp-icrc3-evm-adapter/internal/icp/clients/logger"
 
 	"github.com/aviate-labs/agent-go"
 	"github.com/aviate-labs/agent-go/identity"
@@ -11,19 +15,43 @@ import (
 	"github.com/zondax/poc-icp-icrc3-evm-adapter/internal/conf"
 )
 
+// ICPClients holds both logger and dex clients
+type Clients struct {
+	Logger *icpLogger.Agent
+	Dex    *icpDex.Agent
+}
+
 var (
-	client     *Agent
-	clientOnce sync.Once
+	clients     *Clients
+	clientsOnce sync.Once
 )
 
-// NewICPClient initializes and returns a new ICP client using the provided configuration.
-func NewICPClient(cfg *conf.ICPConfig) (*Agent, error) {
+// NewICPClient
+// Parameters:
+//   - cfg: Configuration containing canister IDs and node URL
+//
+// Returns:
+//   - *ICPClients: A struct containing both Logger and DEX clients
+//   - error: Any error that occurred during initialization
+//
+// The function will:
+//  1. Parse and validate the canister IDs
+//  2. Create a new identity for the agent
+//  3. Initialize both Logger and DEX clients with the same configuration
+//  4. Return a singleton instance of ICPClients
+func NewICPClient(cfg *conf.ICPConfig) (*Clients, error) {
 	var initErr error
 
-	clientOnce.Do(func() {
-		canisterID, err := principal.Decode(cfg.CanisterID)
+	clientsOnce.Do(func() {
+		loggerCanisterID, err := principal.Decode(cfg.LoggerCanisterID)
 		if err != nil {
-			initErr = fmt.Errorf("invalid CanisterID '%s': %w", cfg.CanisterID, err)
+			initErr = fmt.Errorf("invalid Logger CanisterID '%s': %w", cfg.LoggerCanisterID, err)
+			return
+		}
+
+		dexCanisterID, err := principal.Decode(cfg.DexCanisterID)
+		if err != nil {
+			initErr = fmt.Errorf("invalid DEX CanisterID '%s': %w", cfg.DexCanisterID, err)
 			return
 		}
 
@@ -39,25 +67,42 @@ func NewICPClient(cfg *conf.ICPConfig) (*Agent, error) {
 			return
 		}
 
-		agentConfig := agent.Config{
-			ClientConfig: &agent.ClientConfig{Host: nodeURL},
-			FetchRootKey: true,
-			Identity:     id,
-		}
-
-		agentInstance, err := NewAgent(canisterID, agentConfig)
+		timeOut, err := time.ParseDuration(cfg.Timeout)
 		if err != nil {
-			initErr = fmt.Errorf("failed to create agent: %w", err)
+			initErr = fmt.Errorf("failed to parse timeout: %w", err)
 			return
 		}
 
-		client = agentInstance
+		agentConfig := agent.Config{
+			ClientConfig: &agent.ClientConfig{
+				Host: nodeURL,
+			},
+			FetchRootKey: true,
+			Identity:     id,
+			PollTimeout:  timeOut,
+		}
+
+		loggerAgent, err := icpLogger.NewAgent(loggerCanisterID, agentConfig)
+		if err != nil {
+			initErr = fmt.Errorf("failed to create logger agent: %w", err)
+			return
+		}
+
+		dexAgent, err := icpDex.NewAgent(dexCanisterID, agentConfig)
+		if err != nil {
+			initErr = fmt.Errorf("failed to create dex agent: %w", err)
+			return
+		}
+
+		clients = &Clients{
+			Logger: loggerAgent,
+			Dex:    dexAgent,
+		}
 	})
 
-	// Return any error that occurred during initialization
 	if initErr != nil {
 		return nil, initErr
 	}
 
-	return client, nil
+	return clients, nil
 }

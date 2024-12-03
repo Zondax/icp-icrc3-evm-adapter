@@ -3,13 +3,25 @@ package evm
 import (
 	"bytes"
 	"fmt"
+
 	"reflect"
 
-	"github.com/zondax/poc-icp-icrc3-evm-adapter/internal/icp"
+	icpLogger "github.com/zondax/poc-icp-icrc3-evm-adapter/internal/icp/clients/logger"
 )
 
-func mapBlockToEVMBlock(blockValue icp.Value) (Block, error) {
-	var icrcBlock icp.Block
+// mapBlockToEVMBlock converts an ICRC-3 block to an EVM-compatible block format
+//
+// Parameters:
+//   - blockValue: The ICRC-3 block value to convert
+//
+// Returns:
+//   - Block: The converted EVM-compatible block
+//   - error: Any error that occurred during conversion
+//
+// Note: This is a PoC implementation that fills many fields with placeholder values
+// as they don't have direct equivalents in ICRC-3
+func mapBlockToEVMBlock(blockValue icpLogger.Value) (Block, error) {
+	var icrcBlock icpLogger.Block
 	err := decodeValue(blockValue, &icrcBlock)
 	if err != nil {
 		return Block{}, fmt.Errorf("failed to decode block: %w", err)
@@ -39,13 +51,24 @@ func mapBlockToEVMBlock(blockValue icp.Value) (Block, error) {
 	}, nil
 }
 
-func decodeValue(value icp.Value, target interface{}) error {
+// decodeValue decodes an ICRC-3 Value into a Block structure using reflection
+//
+// Parameters:
+//   - value: The ICRC-3 Value to decode
+//   - target: Pointer to the target Block structure
+//
+// Returns:
+//   - error: Any error that occurred during decoding
+//
+// The function uses reflection to map ICRC-3 fields to their corresponding
+// Block structure fields. It performs type validation for each field.
+func decodeValue(value icpLogger.Value, target interface{}) error {
 	v := reflect.ValueOf(target)
 	if v.Kind() != reflect.Ptr || v.IsNil() {
 		return fmt.Errorf("target must be a non-nil pointer")
 	}
 
-	block, ok := v.Interface().(*icp.Block)
+	block, ok := v.Interface().(*icpLogger.Block)
 	if !ok {
 		return fmt.Errorf("target must be a pointer to icp.Block")
 	}
@@ -92,6 +115,17 @@ func decodeValue(value icp.Value, target interface{}) error {
 	return nil
 }
 
+// decodeCertificateData decodes a ULEB128-encoded block number from certificate data
+//
+// Parameters:
+//   - data: The raw certificate data containing the encoded block number
+//
+// Returns:
+//   - uint64: The decoded block number
+//   - error: Any error that occurred during decoding
+//
+// This function implements ULEB128 (Unsigned Little-Endian Base 128) decoding
+// which is used in ICRC-3 certificates to encode block numbers.
 func decodeCertificateData(data []byte) (uint64, error) {
 	reader := bytes.NewReader(data)
 	var blockNumber uint64
