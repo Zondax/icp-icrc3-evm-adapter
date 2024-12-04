@@ -13,6 +13,13 @@ import (
 	"github.com/aviate-labs/agent-go/candid/idl"
 )
 
+// Block tag constants for EVM block references
+const (
+	BlockTagLatest    = "latest"
+	BlockTagSafe      = "safe"
+	BlockTagFinalized = "finalized"
+)
+
 // EthChainID implements the eth_chainId RPC method
 // Returns the current chain ID in hexadecimal format
 func (r *evmRouter) EthChainID(_ JSONRPCRequest) (interface{}, error) {
@@ -93,7 +100,7 @@ func (r *evmRouter) EthGetBlockByNumber(request JSONRPCRequest) (interface{}, er
 	var blockNumber string
 	var err error
 	switch blockNumberHex {
-	case "latest", "safe", "finalized":
+	case BlockTagLatest, BlockTagSafe, BlockTagFinalized:
 		latestBlockHex, err := r.EthBlockNumber(JSONRPCRequest{})
 		if err != nil {
 			return nil, fmt.Errorf("failed to get latest block number: %w", err)
@@ -267,7 +274,7 @@ func extractBlockRange(filter map[string]interface{}) (uint64, uint64, error) {
 	return fromBlock, toBlock, nil
 }
 
-// parseBlockParam parses a block parameter which can be a number or "latest"
+// parseBlockParam parses a block parameter which can be a number or block tag
 func parseBlockParam(blockParam interface{}, defaultValue uint64) (uint64, error) {
 	if blockParam == nil {
 		return defaultValue, nil
@@ -275,7 +282,7 @@ func parseBlockParam(blockParam interface{}, defaultValue uint64) (uint64, error
 
 	switch v := blockParam.(type) {
 	case string:
-		if v == "latest" {
+		if v == BlockTagLatest || v == BlockTagSafe || v == BlockTagFinalized {
 			return defaultValue, nil
 		}
 		return strconv.ParseUint(v, 0, 64)
