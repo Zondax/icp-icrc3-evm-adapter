@@ -1,4 +1,0 @@
-projectName: poc-icp-icrc3-evm-indexer
-templates:
-  - template: templates/earthly-dockerfile
-  - template: templates/publish-earthly

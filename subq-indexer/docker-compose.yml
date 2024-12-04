@@ -16,27 +16,31 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
   subquery-node:
-    image: zondax/subql-node-ethereum:v3.5.3
+    image: onfinality/subql-node-ethereum:latest
     depends_on:
       "postgres":
         condition: service_healthy
-    restart: always
+    restart: unless-stopped
     environment:
       DB_USER: postgres
       DB_PASS: postgres
       DB_DATABASE: postgres
       DB_HOST: postgres
       DB_PORT: 5432
-      ENDPOINT_URL: https://<proxy_url>/rpc/v1
-      CHAIN_ID: 314160
-      START_BLOCK: 1
     volumes:
       - ./:/app
-    entrypoint: "/bin/sh"
     command:
-      - -c
-      - "cd /app && sh ./scripts/replace_endpoint.sh && /usr/local/lib/node_modules/@subql/node-ethereum/bin/run -f=/app --db-schema=app --workers=1 --batch-size=2 --unfinalized-blocks=false --log-level=trace --block-confirmations=0 --all-events"
+      - ${SUB_COMMAND:-} # set SUB_COMMAND env variable to "test" to run tests
+      - -f=/app
+      - --db-schema=app
+      - --workers=1
+      - --batch-size=2
+      - --unfinalized-blocks=true
+      - --log-level=trace
+      - --block-confirmations=0
+      - --all-events
 
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://subquery-node:3000/ready" ]
@@ -45,7 +49,7 @@ services:
       retries: 10
 
   graphql-engine:
-    image: subquerynetwork/subql-query:latest
+    image: onfinality/subql-query:latest
     ports:
       - 3000:3000
     depends_on:
@@ -63,3 +67,4 @@ services:
     command:
       - --name=app
       - --playground
+      - --indexer=http://subquery-node:3000
