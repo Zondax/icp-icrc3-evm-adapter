@@ -13,10 +13,6 @@ import (
 	"github.com/aviate-labs/agent-go/candid/idl"
 )
 
-const (
-	latestParam = "latest"
-)
-
 // EthChainID implements the eth_chainId RPC method
 // Returns the current chain ID in hexadecimal format
 func (r *evmRouter) EthChainID(_ JSONRPCRequest) (interface{}, error) {
@@ -96,7 +92,8 @@ func (r *evmRouter) EthGetBlockByNumber(request JSONRPCRequest) (interface{}, er
 
 	var blockNumber string
 	var err error
-	if strings.EqualFold(blockNumberHex, latestParam) {
+	switch blockNumberHex {
+	case "latest", "safe", "finalized":
 		latestBlockHex, err := r.EthBlockNumber(JSONRPCRequest{})
 		if err != nil {
 			return nil, fmt.Errorf("failed to get latest block number: %w", err)

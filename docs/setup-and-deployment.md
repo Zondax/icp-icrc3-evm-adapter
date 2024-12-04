@@ -66,7 +66,7 @@ This guide provides instructions for setting up and deploying the ICP-EVM Proxy 
    cd ../subq-indexer
    ```
 
-   Edit `project.yaml` and update the URL of the deployed EVM Adapter Proxy.
+   Edit `project.yaml` and update the URL of the deployed EVM Adapter Proxy. Note: For easier testing, ensure the URL has SSL enabled.
 
    ```shell
    npm install
