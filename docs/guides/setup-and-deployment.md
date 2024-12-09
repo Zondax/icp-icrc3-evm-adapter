@@ -20,8 +20,8 @@ This guide provides instructions for setting up and deploying the ICP-EVM Proxy 
 1. **Clone the Repository**
 
    ```shell
-   git clone https://github.com/your-username/icp-evm-proxy.git
-   cd icp-evm-proxy
+   git clone https://github.com/Zondax/icp-icrc3-evm-adapter.git
+   cd icp-icrc3-evm-adapter
    ```
 
 2. **Deploy Logger Canister**
@@ -116,8 +116,8 @@ To verify the deployment:
 
 You can interact with the deployed canisters using the following URLs:
 
-- Counter Canister: <https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=5kyqu-qyaaa-aaaak-qitna-cai>
-- DEX Canister: <https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=7eo5f-eqaaa-aaaam-adqoq-cai>
-- Logger Canister: <https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=ydpfi-uiaaa-aaaal-qjupa-cai>
+- Counter Canister: `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=5kyqu-qyaaa-aaaak-qitna-cai`
+- DEX Canister: `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=7eo5f-eqaaa-aaaam-adqoq-cai`
+- Logger Canister: `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=ydpfi-uiaaa-aaaal-qjupa-cai`
 
 These URLs provide access to the canister interfaces, allowing you to interact with them directly through the Internet Computer's web interface.
