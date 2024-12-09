@@ -1,8 +1,8 @@
 {
-    "label": "Documentation",
+    "label": "Getting Started",
     "position": 1,
     "link": {
         "type": "generated-index",
-        "description": "Complete documentation for the IC EVM Connect Proxy project"
+        "description": "Essential information to get started with ICP-EVM Proxy"
     }
 }
