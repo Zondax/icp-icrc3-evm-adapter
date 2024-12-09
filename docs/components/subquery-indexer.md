@@ -1,3 +1,8 @@
+---
+title: SubQuery Indexer
+sidebar_position: 3
+---
+
 # SubQuery Indexer
 
 The SubQuery Indexer is a crucial component of the ICP-EVM Proxy project, designed to index and make queryable the EVM-compatible data translated by the EVM Adapter Proxy. This Node.js-based service provides a GraphQL API for efficient data retrieval and analysis.

@@ -1,3 +1,8 @@
+---
+title: Overview
+sidebar_position: 1
+---
+
 # ICP-EVM Proxy Overview
 
 The ICP-EVM Proxy is a proof-of-concept (PoC) project designed to enhance interoperability between the Internet Computer Protocol (ICP) and EVM-compatible platforms. This document provides a high-level overview of the project's components and functionality.

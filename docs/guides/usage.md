@@ -1,3 +1,8 @@
+---
+title: Usage Guide
+sidebar_position: 2
+---
+
 # Usage Guide for ICP-EVM Proxy
 
 This guide provides instructions on how to interact with the ICP-EVM Proxy system after it has been set up and deployed.

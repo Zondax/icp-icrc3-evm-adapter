@@ -1,3 +1,8 @@
+---
+title: Setup & Deployment
+sidebar_position: 1
+---
+
 # Setup and Deployment
 
 This guide provides instructions for setting up and deploying the ICP-EVM Proxy project components.

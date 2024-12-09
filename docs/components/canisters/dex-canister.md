@@ -1,3 +1,8 @@
+---
+title: DEX Canister
+sidebar_position: 2
+---
+
 # DEX Canister
 
 The DEX (Decentralized Exchange) Canister is a Rust-based canister that implements basic decentralized exchange functionality on the Internet Computer Protocol (ICP). It provides trading pair management, token operations, and generates events that are logged using the ICRC-3 standard.

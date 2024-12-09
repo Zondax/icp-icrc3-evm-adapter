@@ -1,0 +1,8 @@
+{
+    "label": "Canisters",
+    "position": 1,
+    "link": {
+        "type": "generated-index",
+        "description": "Documentation for all ICP Canisters in the system"
+    }
+}

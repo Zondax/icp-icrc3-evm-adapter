@@ -1,3 +1,8 @@
+---
+title: Counter Canister
+sidebar_position: 1
+---
+
 # Counter Canister
 
 The Counter Canister is a Rust-based canister that demonstrates basic functionality on the Internet Computer Protocol (ICP). It now includes both counter operations and basic DEX-like functionality, serving as an example of how to generate events that can be logged and later translated into EVM-compatible formats.
