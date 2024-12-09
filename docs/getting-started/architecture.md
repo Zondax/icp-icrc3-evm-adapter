@@ -1,3 +1,10 @@
+---
+title: Architecture
+sidebar_position: 2
+---
+
+# Project Modules Architecture
+
 ```mermaid
 graph TD
     User((User))

@@ -1,3 +1,8 @@
+---
+title: EVM Adapter Proxy
+sidebar_position: 2
+---
+
 # EVM Adapter Proxy
 
 The EVM Adapter Proxy is a crucial component in the ICP-EVM Proxy project. It serves as a bridge between the Internet Computer Protocol (ICP) and EVM-compatible systems, enabling interoperability and data translation.
