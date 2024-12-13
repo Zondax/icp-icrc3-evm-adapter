@@ -55,8 +55,8 @@ As a proof-of-concept, this project has several limitations and is not intended 
 
 Component-specific documentation:
 
-- [Counter Canister](./components/counter-canister.md)
-- [DEX Canister](./components/dex-canister.md)
-- [Logger Canister](./components/logger-canister.md)
+- [Counter Canister](./components/canisters/counter-canister.md)
+- [DEX Canister](./components/canisters/dex-canister.md)
+- [Logger Canister](./components/canisters/logger-canister.md)
 - [EVM Adapter Proxy](./components/evm-adapter-proxy.md)
 - [SubQuery Indexer](./components/subquery-indexer.md)
