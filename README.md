@@ -12,14 +12,26 @@ _Please visit our website at [zondax.ch](https://www.zondax.ch)_
 
 This project aims to enhance the interoperability of Internet Computer Protocol (ICP) with EVM-compatible platforms.
 
+## Documentation
+
+Detailed documentation is available in the `docs` directory:
+
+- [Project Overview](docs/overview.md)
+- [Architecture](docs/architecture.md)
+
+### Guides
+
+- [Usage Guide](docs/guides/usage.md)
+
 ## Components
 
-1. **Counter Canister**: A simple Rust-based canister that demonstrates basic functionality.
-2. **Logger Canister**: A Rust-based canister implementing ICRC-3 compatible logging.
-3. **EVM Adapter Proxy**: A Go-based service that:
+1. **[Counter Canister](docs/components/canisters/counter-canister.md)**: A simple Rust-based canister that demonstrates basic functionality.
+2. **[Logger Canister](docs/components/canisters/logger-canister.md)**: A Rust-based canister implementing ICRC-3 compatible logging.
+3. **[DEX Canister](docs/components/canisters/dex-canister.md)**: A Rust-based canister implementing a DEX compatible with ICRC-3.
+4. **[EVM Adapter Proxy](docs/components/evm-adapter-proxy.md)**: A Go-based service that:
    - Translates ICRC-3 log data into EVM-compatible formats.
    - Exposes EVM RPC compatible methods for interaction with ICP canisters.
-4. **SubQuery Indexer**: Indexes and provides queryable access to the translated EVM-compatible data.
+5. **[SubQuery Indexer](docs/components/subquery-indexer.md)**: Indexes and provides queryable access to the translated EVM-compatible data.
 
 ## Prerequisites
 
@@ -30,6 +42,8 @@ This project aims to enhance the interoperability of Internet Computer Protocol 
 - Rust (latest stable version)
 
 ## Setup and Deployment
+
+You can follow the steps below to setup and deploy the components of the ICP-EVM Proxy or if you want more details you can check the [Setup & Deployment](docs/guides/setup-and-deployment.md) guide.
 
 1. Clone the repository:
 
